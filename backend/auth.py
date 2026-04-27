@@ -3,7 +3,9 @@ from datetime import datetime, timedelta
 import jwt
 from typing import Optional
 
-SECRET_KEY = "super_secret_key_omnidata"
+import os
+
+SECRET_KEY = os.getenv("SECRET_KEY", "super_secret_key_omnidata")
 ALGORITHM = "HS256"
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
