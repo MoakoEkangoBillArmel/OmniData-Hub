@@ -130,7 +130,7 @@ export default function CoursePage() {
               <strong>Exhaustivité des algorithmes :</strong>
             </p>
             <ul className="list-disc pl-5 space-y-2">
-              <li><strong>Arbres de décision :</strong> Une suite de questions (ex: "L'âge est-il > 30 ?") qui mène à une conclusion.</li>
+              <li><strong>Arbres de décision :</strong> Une suite de questions (ex: "L'âge est-il &gt; 30 ?") qui mène à une conclusion.</li>
               <li><strong>Forêt Aléatoire (Random Forest) :</strong> Créer des centaines d'arbres de décision qui votent. C'est l'algorithme robuste que nous utilisons dans le tableau de bord pour définir la <em>Cible</em> (Ex: Excellent, Moyen, Critique).</li>
               <li><strong>Régression Logistique :</strong> Malgré son nom, c'est un outil de classification binaire utilisant la fonction Sigmoïde pour donner une probabilité (ex: 80% de chance d'Achat).</li>
               <li><strong>Matrice de confusion :</strong> L'outil statistique pour évaluer ces modèles (Vrais Positifs, Faux Positifs, etc.).</li>
