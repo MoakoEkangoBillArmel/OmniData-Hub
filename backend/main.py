@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -19,7 +20,11 @@ from services.clustering import run_kmeans_clustering
 from services.classification import run_random_forest
 
 # Init DB
-models.Base.metadata.create_all(bind=database.engine)
+# Init DB sécurisée pour Vercel
+try:
+    models.Base.metadata.create_all(bind=database.engine)
+except Exception as e:
+    print(f"Erreur d'initialisation DB : {e}")
 
 app = FastAPI(title="OmniData-Hub API v2", version="2.0.0")
 
@@ -124,7 +129,11 @@ def get_all_users(db: Session = Depends(get_db), current_admin: models.User = De
 # --- CORE API ROUTES ---
 @app.get("/")
 def read_root():
-    return {"message": "Bienvenue sur l'API OmniData-Hub v2"}
+    return {"message": "Bienvenue sur l'API OmniData-Hub v2", "status": "online"}
+
+@app.get("/api/health")
+def health_check():
+    return {"status": "ok", "environment": "vercel" if os.getenv("VERCEL") else "local"}
 
 @app.post("/api/scrape")
 def scrape_data(payload: ScrapePayload, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):

@@ -4,13 +4,20 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 # Récupère l'URL de la BD depuis l'environnement (ex: Vercel), ou utilise SQLite en local
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./omnidata.db")
+# Configuration pour Vercel : Utiliser /tmp pour SQLite si DATABASE_URL n'est pas défini
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
-# SQLite nécessite "check_same_thread: False", mais PostgreSQL le refuse. On gère les deux :
+if not SQLALCHEMY_DATABASE_URL:
+    if os.getenv("VERCEL"):
+        SQLALCHEMY_DATABASE_URL = "sqlite:////tmp/omnidata.db"
+    else:
+        SQLALCHEMY_DATABASE_URL = "sqlite:///./omnidata.db"
+
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
     engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 else:
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    # Pour PostgreSQL sur Vercel/Supabase, il faut souvent forcer le mode pool
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
