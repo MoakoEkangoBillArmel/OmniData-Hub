@@ -104,7 +104,7 @@ export default function Dashboard() {
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const API_URL = "http://localhost:8000";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? "http://localhost:8000" : "");
 
   const processData = async (rawData: any[], context: string, features?: string[], target?: string, sources: string[] = []) => {
     const token = localStorage.getItem('token');
