@@ -7,6 +7,10 @@ from sqlalchemy.ext.declarative import declarative_base
 # Configuration pour Vercel : Utiliser /tmp pour SQLite si DATABASE_URL n'est pas défini
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
+if SQLALCHEMY_DATABASE_URL and SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    # SQLAlchemy nécessite "postgresql://" au lieu de "postgres://" (format Supabase/Neon)
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 if not SQLALCHEMY_DATABASE_URL:
     if os.getenv("VERCEL"):
         SQLALCHEMY_DATABASE_URL = "sqlite:////tmp/omnidata.db"
