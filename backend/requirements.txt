@@ -2,9 +2,11 @@ fastapi
 uvicorn
 pydantic
 sqlalchemy
+bcrypt
 passlib[bcrypt]
 pyjwt
 python-multipart
+numpy
 pandas
 scikit-learn
 yfinance

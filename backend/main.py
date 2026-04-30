@@ -1,25 +1,21 @@
 import os
+import sys
+
+# Assurer que le dossier backend est dans le path Python (nécessaire pour Vercel)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from typing import List, Dict, Any
 from fastapi.middleware.cors import CORSMiddleware
-import pandas as pd
 from io import StringIO
-import numpy as np
 
 # Imports Database & Auth
 from sqlalchemy.orm import Session
 import database, models, auth
 from database import get_db
 
-# Imports Services
-from services.cleaner import clean_data
-from services.prediction import run_pca_and_regression
-from services.clustering import run_kmeans_clustering
-from services.classification import run_random_forest
-
-# Init DB
 # Init DB sécurisée pour Vercel
 try:
     models.Base.metadata.create_all(bind=database.engine)
@@ -148,6 +144,8 @@ def scrape_data(payload: ScrapePayload, current_user: models.User = Depends(get_
 @app.post("/api/upload")
 async def upload_csv(file: UploadFile = File(...), current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
+        import pandas as pd
+        import numpy as np
         content = await file.read()
         df = pd.read_csv(StringIO(content.decode('utf-8')))
         df = df.replace({np.nan: None})
@@ -160,6 +158,7 @@ async def upload_csv(file: UploadFile = File(...), current_user: models.User = D
 @app.post("/api/clean")
 def clean_dataset(payload: DataPayload, current_user: models.User = Depends(get_current_user)):
     try:
+        from services.cleaner import clean_data
         cleaned_data, stats = clean_data(payload.data, payload.features)
         return {"status": "success", "cleaned_data": cleaned_data, "stats": stats}
     except Exception as e:
@@ -168,6 +167,7 @@ def clean_dataset(payload: DataPayload, current_user: models.User = Depends(get_
 @app.post("/api/predict/regression")
 def predict_regression(payload: DataPayload, current_user: models.User = Depends(get_current_user)):
     try:
+        from services.prediction import run_pca_and_regression
         results = run_pca_and_regression(payload.data, payload.features, payload.target_column)
         return {"status": "success", "results": results}
     except Exception as e:
@@ -176,6 +176,7 @@ def predict_regression(payload: DataPayload, current_user: models.User = Depends
 @app.post("/api/predict/classification")
 def predict_classification(payload: DataPayload, current_user: models.User = Depends(get_current_user)):
     try:
+        from services.classification import run_random_forest
         results = run_random_forest(payload.data, payload.features, "target_category")
         return {"status": "success", "results": results}
     except Exception as e:
